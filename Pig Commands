@@ -1,0 +1,113 @@
+7.2(a):-
+employee_1 = LOAD '/pigInput1' using PigStorage(',') AS 
+(empid:int,empname:chararray,salary:float,rating:int);
+
+emp_order = order employee_1 by rating desc;
+
+emp_limit = limit emp_order 5;
+
+emp_order_name = ORDER emp_limit by empname asc;
+
+emp_foreach = foreach emp_order_name generate empid,empname;
+
+dump emp_foreach;
+
+
+7.2(b):-
+employee_1 = LOAD '/pigInput1' using PigStorage(',') AS 
+(empid:int,empname:chararray,salary:float,rating:int);
+
+emp_order_salary = order employee_1 by salary desc;
+
+emp_filter =  filter emp_order_salary by (empid%2) == 0;
+
+emp_limit_highest = limit emp_filter 3;
+
+emp_order_name = ORDER emp_limit_highest by empname asc;
+
+emp_foreach = foreach emp_order_name generate empid,empname;
+
+dump emp_foreach;
+
+7.2(c):-
+
+employee_1 = LOAD '/pigInput1' using PigStorage(',') AS (empid:int,empname:chararray,salary:float,rating:int);
+emp_expenses = LOAD '/pigInput2' using PigStorage('\t') AS (empid:int,expenses:int);
+join_emp =  join employee_1 by empid,emp_expenses by empid;
+emp_order = order join_emp by expenses desc;
+emp_order_name = order emp_order by empname asc;
+emp_foreach = foreach emp_order_name generate employee_1.empid,employee_1.empname;
+dump emp_foreach;
+
+7.2(d):-
+
+employee_1 = LOAD '/pigInput1' using PigStorage(',') AS (empid:int,empname:chararray,salary:float,rating:int);
+emp_expenses = LOAD '/pigInput2' using PigStorage('\t') AS (empid:int,expenses:int);
+join_emp =  join employee_1 by empid,emp_expenses by empid;
+emp_order_name = order join_emp by empname asc;
+emp_foreach = foreach emp_order_name generate employee_1.empid,employee_1.empname;
+dump emp_foreach;
+
+7.2(e) :-
+
+employee_1 = LOAD '/pigInput1' using PigStorage(',') AS (empid:int,empname:chararray,salary:float,rating:int);
+emp_expenses = LOAD '/pigInput2' using PigStorage('\t') AS (empid:int,expenses:int);
+join_emp =  join employee_1 by empid right outer,emp_expenses by empid;
+emp_order_name = order join_emp by empname asc;
+emp_foreach = foreach emp_order_name generate employee_1.empid,employee_1.empname;
+
+
+Note :- Screenshot of output 7.2(a) and 7.2(b) attached.
+        for rest others I have tried the command was working fine but was getting connectionrefused error,So could not     		take the screenshot. 
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+STORE emp_filter into '/pigresult'; //put into hdfs 
+
+Solve intermediates results
+log = LOAD '/sample.log';
+
+LEVELS = foreach log generate REGEX_EXTRACT($0,'(TRACE|DEBUG|INFO|WARN|ERROR|FATAL)',1) as LOGLEVEL;
+
+FILTEREDLEVELS = FILTER LEVELS by LOGLEVEL is not null;
+
+GROUPEDLEVELS = GROUP FILTERLEVELS by LOGLEVEL;
+
+FREQUENCIES =foreach GROUPEDLEVELS generate group as LOGLEVEL, COUNT(FILTEREDLEVELS.LOGLEVEL) as COUNT;
+
+RESULT = order FREQUENCIES by COUNT desc;
+
+DUMP RESULT;
+
+
+
+
